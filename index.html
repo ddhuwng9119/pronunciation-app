@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Luyện phát âm đơn giản</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+    }
+    .output {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎤 Luyện phát âm</h1>
+  <p><strong>Câu mẫu:</strong> <span id="sample">She sells sea shells by the seashore.</span></p>
+  <button onclick="startRecording()">Bấm để đọc</button>
+
+  <div class="output" id="output"></div>
+
+  <script>
+    const sampleText = "She sells sea shells by the seashore.";
+  
+    function highlightDifferences(userText, sampleText) {
+      const userWords = userText.toLowerCase().split(" ");
+      const sampleWords = sampleText.toLowerCase().split(" ");
+  
+      let result = "";
+      let correctCount = 0;
+  
+      for (let i = 0; i < sampleWords.length; i++) {
+        if (userWords[i] === sampleWords[i]) {
+          result += `<span class="correct">${sampleWords[i]}</span> `;
+          correctCount++;
+        } else {
+          result += `<span class="wrong">${sampleWords[i]}</span> `;
+        }
+      }
+  
+      const score = Math.round((correctCount / sampleWords.length) * 100);
+  
+      return {
+        html: result,
+        score: score,
+        total: sampleWords.length,
+        correct: correctCount,
+        wrong: sampleWords.length - correctCount
+      };
+    }
+  
+    function startRecording() {
+      const output = document.getElementById('output');
+      output.innerHTML = "⏳ Đang nghe...";
+  
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+  
+      recognition.start();
+  
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        const result = highlightDifferences(transcript, sampleText);
+  
+        output.innerHTML = `
+          <p>🗣️ Bạn đã đọc:</p>
+          <p>${result.html}</p>
+          <p>✅ Đúng: ${result.correct} | ❌ Sai: ${result.wrong}</p>
+          <h3>📊 Điểm phát âm: ${result.score}%</h3>
+        `;
+      };
+  
+      recognition.onerror = function(event) {
+        output.innerHTML = "❌ Lỗi: " + event.error;
+      };
+    }
+  </script>
+</body>
+</html>
